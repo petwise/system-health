@@ -82,8 +82,8 @@ $fullname = getFullName($user);
 				<div class="page-header">
 					<div class="page-header-content">
 						<h1>System Health Check<small> development systems</small></h1>
-						<p>Our message system is currently <b>OFF</b> for the development environment. We only send out messages to test email accounts, therefore, the message check will always show up red. </p>
 					</div>
+					<p>Our message system is currently <b>OFF</b> for the development environment. We only send out messages to test email accounts, therefore, the message check will always show up red. </p>
 				</div>
 				<div class="page-region">
 					<div class="page-region-content">

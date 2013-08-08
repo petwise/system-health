@@ -143,7 +143,7 @@ function checkProdSystem()
 	}
 	else
 	{
-		if ($valueFromFile <= $todaysMessages)
+		if ($valueFromFile < $todaysMessages)
 		{
 			fwrite($handle, $valueFromFile);
 			return true;
