@@ -85,29 +85,18 @@ $fullname = getFullName($user);
 		</div>
 		<div class="page-region">
 			<div class="page-region-content">
-				<?php
-				if(isset($_POST['submit']))
-				{
-				echo "<meta http-equiv=\"refresh\" content=\"3;url=home.php\">";
-				}
-				else
-				{
-
-				?>
 				<div class="span12">
 					<div class="row">
 						<div class="span10 offset2">
-							<button class="standart default bg-color-green" onclick="document.location.href='http://systemHealth.dev/dev.php'">
+							<button class="standart default bg-color-green" onclick="document.location.href='http://petlogic.info/dev.php'">
 								Development System
 							</button>
-							<button class="standart default bg-color-green" onclick="document.location.href='http://systemHealth.dev/prod.php'">
+							<button class="standart default bg-color-green" onclick="document.location.href='http://petlogic.info/prod.php'">
 								Production System
 							</button>
 						</div>
 					</div>
-				</div>
-			<?php } ?>
-				
+				</div>				
 			</div>
 		</div>
 	</div>
