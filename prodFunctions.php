@@ -47,6 +47,48 @@ function checkConnection()
 	mysql_close();
 }
 
+function getMailQuery()
+{
+	$sql = "
+select
+  msgtyp.name messageType,
+  contct.name contactType,
+  transp.name customerType,
+  counts.queued AS queued,
+  counts.sent AS sent
+from
+  message_transport transp
+  join message_type msgtyp
+  join contact_type contct
+  left join (
+    select
+      contactTypeId,
+      transportId,
+      messageTypeId,
+      count(queuedAt) queued,
+      count(sentAt) sent
+    from
+      message 
+    where
+      queuedAt >= date(now())
+      or sentAt >= date(now())
+    group by
+     contactTypeId, transportId, messageTypeId 
+  ) counts on
+    msgtyp.id = counts.messageTypeId 
+	and contct.id = counts.contactTypeId 
+	and transp.id = counts.transportId
+where 
+  (transp.id = 1 and contct.id=1) -- only email for petwise
+  or (transp.id=2 and contct.id in (1,2,3)) -- skip contact type 4 not used
+order by
+  transp.id,
+  msgtyp.id,
+  contct.id;";
+
+	return $sql;
+}
+
 /*
  *
  *
