@@ -1,12 +1,9 @@
 <?php
-include ("developmentConnection.php");
+include 'developmentConnection.php';
 
 function vetLogicConnectionWeekly()
 {
-	$format = 'Y-m-d';
-	$dt = date($format);
-	$sevendays = date($format, strtotime('-7 days' . $dt));
-	$sql = "SELECT COUNT(DISTINCT(dsid)) AS total_count from __connection_log where connected = 1 and timestamp >= '$sevendays' limit 1";
+	$sql = "SELECT COUNT(DISTINCT(dsid)) AS total_count from __connection_log where connected = 1 and timestamp <= NOW() AND timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
 	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
 	//$result = mysql_result($result,0);
 	//echo mysql_fetch_assoc($result);
@@ -20,8 +17,7 @@ function vetLogicConnectionWeekly()
 
 function vetLogicConnectionToday()
 {
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(DISTINCT (dsid)) from __connection_log where connected = 1 and timestamp >= '$dt' limit 3500";
+	$sql = "SELECT COUNT(DISTINCT (dsid)) from __connection_log where connected = 1 and timestamp >= Date(now())";
 	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
 	while (($row = mysql_fetch_assoc($result)))
 	{
@@ -39,112 +35,111 @@ function checkConnection()
 	{
 		return false;
 	}
-	else
-	{
-		return true;
-	}
+	return true;
 	mysql_close();
 }
 
-/*
- *
- *
- * Petwise Message Type Functions.
- */
-
-function messageTypeQueued($messageType, $transport, $contact)
+function petwiseQuery()
 {
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS newsCount from message where messageTypeId = '$messageType' AND transportId = '$transport' AND contactTypeId = '$contact' AND queuedAt >= '$dt' limit 10000";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['newsCount'];
-	}
-	return $num;
-	mysql_close();
+	$sql = "
+select
+  mt.name AS 'messageType',
+  count(queuedAt) queued,
+  count(sentAt) sent
+from
+  message m
+LEFT JOIN message_type mt
+	ON m.messageTypeId = mt.id
+LEFT JOIN contact_type ct
+	ON ct.id = m.contactTypeId
+LEFT JOIN message_transport tr
+	ON tr.id = m.transportId
+where
+  queuedAt >= Date(now()) AND m.transportId = '1'
+group by
+  messageTypeId, contactTypeId";
+
+	return $sql;
 }
 
-function messageTypeSent($messageType, $transport, $contact)
+function emindersQuery()
 {
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS reminderCount from message where messageTypeId = '$messageType' AND transportId = '$transport' AND contactTypeId = '$contact' AND sentAt IS NOT NULL AND is_processed = 1 AND queuedAt >= '$dt' limit 10000";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['reminderCount'];
-	}
-	return $num;
-	mysql_close();
+	$sql = "select
+CONCAT(mt.name, ' - ', ct.name) AS 'messageType',
+  count(queuedAt) queued,
+  count(sentAt) sent
+from
+  message m
+LEFT JOIN message_type mt
+	ON m.messageTypeId = mt.id
+LEFT JOIN contact_type ct
+	ON ct.id = m.contactTypeId
+LEFT JOIN message_transport tr
+	ON tr.id = m.transportId
+where
+  queuedAt >= Date(now()) AND m.transportId = '2'
+group by
+  messageTypeId, contactTypeId";
+
+	return $sql;
 }
 
-function messageTypeQueued2($transport, $contact)
+function getMailQuery()
 {
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS reminderCount from message where transportId = '$transport' AND contactTypeId = '$contact' AND queuedAt >= '$dt'";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['reminderCount'];
-	}
-	return $num;
-	mysql_close();
-}
+	$sql = "
+select
+  msgtyp.name messageType,
+  contct.name contactType,
+  transp.name customerType,
+  counts.queued AS queued,
+  counts.sent AS sent
+from
+  message_transport transp
+  join message_type msgtyp
+  join contact_type contct
+  left join (
+    select
+      contactTypeId,
+      transportId,
+      messageTypeId,
+      count(queuedAt) queued,
+      count(sentAt) sent
+    from
+      message 
+    where
+      queuedAt >= date(now())
+      or sentAt >= date(now())
+    group by
+     contactTypeId, transportId, messageTypeId 
+  ) counts on
+    msgtyp.id = counts.messageTypeId 
+	and contct.id = counts.contactTypeId 
+	and transp.id = counts.transportId
+where 
+  (transp.id = 1 and contct.id=1) -- only email for petwise
+  or (transp.id=2 and contct.id in (1,2,3)) -- skip contact type 4 not used
+order by
+  transp.id,
+  msgtyp.id,
+  contct.id;";
 
-function messageTypeSent2($transport, $contact)
-{
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS reminderCount from message where transportId = '$transport' AND contactTypeId = '$contact' AND sentAt IS NOT NULL AND queuedAt >= '$dt'";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['reminderCount'];
-	}
-	return $num;
-	mysql_close();
-}
-
-function messageFailureQueued()
-{
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS num from message where priority = 110 AND queuedAt >= '$dt'";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['num'];
-	}
-	return $num;
-	mysql_close();
-}
-
-function messageFailureSent()
-{
-	$dt = date('Y-m-d');
-	$sql = "SELECT COUNT(id) AS num from message where priority = 110 AND sentAt IS NOT NULL AND queuedAt >= '$dt'";
-	$result = mysql_query($sql) or die('Connection Error: ' . mysql_error());
-	while (($row = mysql_fetch_assoc($result)))
-	{
-		$num = $row['num'];
-	}
-	return $num;
-	mysql_close();
+	return $sql;
 }
 
 function checkProdSystem()
 {
 	$file = 'dev.txt';
 	$handle = fopen($file, "r+");
-	$dt = date('Y-m-d');
 
-	$sql = "SELECT COUNT(id) as value FROM message where queuedAt >= '$dt'";
+	$sql = "SELECT COUNT(id) as value FROM message where queuedAt >= Date(now())";
 	$row = mysql_fetch_assoc(mysql_query($sql));
 	$todaysMessages = $row['value'];
 
 	$valueFromFile = file_get_contents($file);
 	if (!$valueFromFile)
 	{
-
 		fwrite($handle, $todaysMessages);
+		return true;
 	}
 	else
 	{
@@ -155,7 +150,6 @@ function checkProdSystem()
 		}
 		else
 		{
-
 			return false;
 		}
 	}

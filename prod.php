@@ -133,8 +133,6 @@ $fullname = getFullName($user);
 
 							$titles = array(
 								'Message Type',
-								'Contact Type',
-								'Customer Type',
 								'Queued',
 								'Sent'
 							);
@@ -143,43 +141,38 @@ $fullname = getFullName($user);
 								echo "<th>" . $value . "</th>";
 							}
 							echo "</thead><tbody>";
-							while (($row = mysql_fetch_assoc(mysql_query(getMailQuery))))
+							$sql = petwiseQuery();
+							$result = mysql_query($sql);
+							while (($row = mysql_fetch_assoc($result)))
 							{
 								echo "<tr>";
 								echo "<td>" . $row['messageType'] . "</td>";
-								echo "<td>" . $row['contactType'] . "</td>";
-								echo "<td>" . $row['customerType'] . "</td>";
 								echo "<td>" . $row['queued'] . "</td>";
 								echo "<td>" . $row['sent'] . "</td>";
 								echo "</tr>";
 							}
-
-							/*echo '<tr><td>Appointment</td><td>' . messageTypeQueued(2, 1, 1) . '</td><td>'
-							 * . messageTypeSent(2, 1, 1) . '</td></tr>';
-							 echo '<tr><td>Reminders</td><td>' . messageTypeQueued(3, 1, 1) . '</td><td>' .
-							messageTypeSent(3, 1, 1) . '</td></tr>';
-							 echo '<tr><td>Newsletter</td><td>' . messageTypeQueued(5, 1, 1) . '</td><td>' .
-							messageTypeSent(5, 1, 1) . '</td></tr>';
-							 echo '<tr><td>Birthday</td><td>' . messageTypeQueued(11, 1, 1) . '</td><td>' .
-							messageTypeSent(11, 1, 1) . '</td></tr>';
-							 echo '<tr><td>Account Created</td><td>' . messageTypeQueued(12, 1, 1) .
-							'</td><td>' . messageTypeSent(12, 1, 1) . '</td></tr>';
-							 echo '<tr><td>Failure Warning</td><td>' . messageFailureQueued() . '</td><td>' .
-							messageFailureSent() . '</td></tr>';*/
 							echo "</tbody><tfoot></tfoot></table>";
 
-							/*echo "<p><b>eMinders Message Stats</b></p>";
-							 echo "<table class=\"bordered
-							striped\"><thead><tr><th>Type</th><th>Queued</th><th>Sent</th></tr></thead><tbody>";
-							 echo '<tr><td>Email</td><td>' . messageTypeQueued2(2, 1) . '</td><td>' .
-							messageTypeSent2(2, 1) . '</td></tr>';
-							 echo '<tr><td>SMS</td><td>' . messageTypeQueued2(2, 2) . '</td><td>' .
-							messageTypeSent2(2, 2) . '</td></tr>';
-							 echo '<tr><td>Voice</td><td>' . messageTypeQueued2(2, 3) . '</td><td>' .
-							messageTypeSent2(2, 3) . '</td></tr>';
-							 echo "</tbody><tfoot></tfoot></table>";*/
+							echo "<p><b>eMinders Message Stats</b></p>";
+							echo "<table class=\"bordered striped\"><thead>";
+							foreach ($titles as $key => $value)
+							{
+								echo "<th>" . $value . "</th>";
+							}
+							echo "</thead><tbody>";
+							$sql = emindersQuery();
+							$result = mysql_query($sql);
+							while (($row = mysql_fetch_assoc($result)))
+							{
+								echo "<tr>";
+								echo "<td>" . $row['messageType'] . "</td>";
+								echo "<td>" . $row['queued'] . "</td>";
+								echo "<td>" . $row['sent'] . "</td>";
+								echo "</tr>";
+							}
+							echo "</tbody><tfoot></tfoot></table>";							 
 						}
-					?>
+						?>
 					</div>
 				</div>
 			</div>

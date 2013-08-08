@@ -88,10 +88,10 @@ $fullname = getFullName($user);
 				<div class="span12">
 					<div class="row">
 						<div class="span10 offset2">
-							<button class="standart default bg-color-green" onclick="document.location.href='http://petlogic.info/dev.php'">
+							<button class="standart default bg-color-green" onclick="document.location.href='dev.php'">
 								Development System
 							</button>
-							<button class="standart default bg-color-green" onclick="document.location.href='http://petlogic.info/prod.php'">
+							<button class="standart default bg-color-green" onclick="document.location.href='prod.php'">
 								Production System
 							</button>
 						</div>
