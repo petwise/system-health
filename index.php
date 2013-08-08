@@ -10,16 +10,16 @@ if(isset($_POST['submit']))
 
 	if($_POST['email'] == '')
 	{
-		echo 'Please Fill in Email.';
+		echo '<h2>Please Fill in Email.</h2><br>';
 		$error_no++;
 	}
 
 	if($_POST['password'] == '')
 	{
-		echo 'Please enter a password';
+		echo '<h2>Please enter a password</h2><br>';
 	}
 
-	if(checkEmail($_POST['email'], $_POST['password']))
+	if(@checkEmail($_POST['email'], $_POST['password']))
 	{
 		Session_start ();
 		if( isset($_POST['email']) && isset($_POST['password']) )
@@ -34,8 +34,12 @@ if(isset($_POST['submit']))
 		}
 
 	}
-	else {
-		ECHO 'Email or Password is Incorrect!';
+	else 
+	{
+		ECHO '<h2>Email or Password is Incorrect!</h2><br>';
+		?>
+		<meta http-equiv="refresh" content="3;url=index.php">
+		<?
 	}
 }
 else

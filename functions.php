@@ -76,8 +76,9 @@ function checkEmail($email, $password)
 		return false;
 	}
 
-	$sql = "SELECT * FROM user WHERE email = '$email' AND password = '$str' and (groupId = '1' OR groupId = '2')";
-	$result = mysql_query($sql) or die('Could not find member: ' . mysql_error());
+	$sql = "SELECT * FROM user WHERE email = '$email' AND password = '$str' and (groupId = '1' OR groupId = '2') 
+	AND (id IN(879042,862032,817,878121,879047,879048,399627,275356))";
+	$result = mysql_query($sql) or die('Could not find member: ');
 	if (!mysql_result($result, 0, 0) > 0)
 	{
 		return false;
