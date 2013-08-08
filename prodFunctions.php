@@ -4,10 +4,6 @@ include 'productionConnection.php';
 function vetLogicConnectionWeekly()
 {
 
-	//$topicreplycount = mysql_query('SELECT COUNT(DISTINCT post_msg_id) FROM
-	// phpbb_attachments WHERE topic_id = '.$row['topic_id'].' AND post_msg_id <
-	// '.$row['post_msg_id']);
-	//$topicreplycount = mysql_result($topicreplycount,0);
 	$format = 'Y-m-d';
 	$dt = date($format);
 	$sevendays = date($format, strtotime('-7 days' . $dt));
