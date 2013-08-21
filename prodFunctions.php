@@ -158,3 +158,87 @@ function checkProdSystem()
 	fclose($handle);
 	mysql_close();
 }
+
+function perVisit($dsid, $type, $days)
+{
+	$sql = "
+	SELECT 	s.description 				AS 	species,
+			sum(amount)					AS	total, 
+			count(amount)				AS	number_records,
+			sum(amount)/count(amount) 	AS 	per_visit
+	FROM payment p
+		LEFT JOIN history h
+			ON h.dsid = p.dsid AND p.rid = h.rid
+		LEFT JOIN patient pt
+			ON pt.dsid = h.dsid AND h.patientRid = pt.rid
+		LEFT JOIN species s
+			ON pt.dsid = s.dsid AND pt.speciesRid = s.rid
+	WHERE p.dsid = $dsid 
+		AND p.madeAt >= DATE_SUB(NOW(), INTERVAL $days DAY) 
+		AND s.description like '%$type%' 
+	LIMIT 50000";
+
+	return $sql;
+
+}
+
+function perVisitOther($dsid, $days)
+{
+	$sql = "
+	SELECT 	sum(amount)					AS	total, 
+			count(amount)				AS	number_records,
+			sum(amount)/count(amount) 	AS 	per_visit
+	FROM payment p
+		LEFT JOIN history h
+			ON h.dsid = p.dsid AND p.rid = h.rid
+		LEFT JOIN patient pt
+			ON pt.dsid = h.dsid AND h.patientRid = pt.rid
+		LEFT JOIN species s
+			ON pt.dsid = s.dsid AND pt.speciesRid = s.rid
+	WHERE p.dsid = $dsid 
+		AND p.madeAt >= DATE_SUB(NOW(), INTERVAL $days DAY) 
+		AND s.description IS NULL
+	LIMIT 50000";
+
+	return $sql;
+
+}
+
+function perVisitTotal($dsid, $days)
+{
+	$sql = "
+	SELECT 	sum(amount)					AS	total, 
+		count(amount)				AS	number_records,
+		sum(amount)/count(amount) 	AS 	per_visit
+	FROM payment p
+		LEFT JOIN history h
+			ON h.dsid = p.dsid AND p.rid = h.rid
+		LEFT JOIN patient pt
+			ON pt.dsid = h.dsid AND h.patientRid = pt.rid
+		LEFT JOIN species s
+			ON pt.dsid = s.dsid AND pt.speciesRid = s.rid
+	WHERE p.dsid = 1092 
+		AND p.madeAt >= DATE_SUB(NOW(), INTERVAL $days DAY) 
+	LIMIT 50000";
+	return $sql;
+}
+
+function felineAppt($dsid, $days, $type)
+{
+	$sql = "
+	SELECT 
+		COUNT(a.rid)	AS	total
+	
+	FROM appointment a
+		LEFT JOIN patient p
+			ON a.dsid = p.dsid AND a.patientRid = p.rid 
+		LEFT JOIN species s
+			ON p.dsid = s.dsid AND p.speciesRid = s.rid
+	
+	WHERE a.dsid = $dsid 
+		AND a.activeStartDate >= DATE_SUB(NOW(), INTERVAL $days DAY) 
+		AND s.description like '%$type%'
+	
+	LIMIT 50000";
+	return $sql;
+}
